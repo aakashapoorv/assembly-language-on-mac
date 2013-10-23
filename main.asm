@@ -1,8 +1,8 @@
 ; Mac Assembly 
 ; Aakash Apoorv
 ; ./test
-; ld -o test -e mystart test.o
-; nasm -f macho test.asm
+; ld -o main -e mystart main.o
+; nasm -f macho main.asm
 
 section .text
 global mystart               ; make the main function externally visible
