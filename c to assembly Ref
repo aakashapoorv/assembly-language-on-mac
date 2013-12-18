@@ -1,0 +1,652 @@
+c to assembly
+complied with gcc
+gcc -S hello2.c
+cc -o helly2 hello2.s
+./helly2
+http://www.classes.cs.uchicago.edu/archive/2009/spring/22620-1/docs/handout-03.pdf
+http://en.wikipedia.org/wiki/X86_assembly_language
+http://en.wikipedia.org/wiki/File:Table_of_x86_Registers.png
+https://www.hackerschool.com/blog/7-understanding-c-by-learning-assembly
+http://docs.oracle.com/cd/E19205-01/820-4220/
+http://cs.nyu.edu/courses/fall11/CSCI-GA.2130-001/x64-intro.pdf
+https://gist.github.com/mikesmullin/6330894
+http://cseweb.ucsd.edu/classes/sp10/cse141/pdf/02/S01_x86_64.key.pdf
+
+
+1) Blank c program
+
+test.c
+===START===
+
+====END====
+
+Assembly
+
+.section	__TEXT,__text,regular,pure_instructions
+
+.subsections_via_symbols
+
+
+--------------------------------------------------------------
+
+
+2) 2 line c program
+
+test.c
+===START===
+
+int main (void) {
+
+	
+}
+
+====END====
+
+Assembly
+
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	movl	$0, %eax
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+
+.subsections_via_symbols
+
+
+
+
+-----------------------------------------------------------------
+
+
+
+3) basic printf c program
+
+test.c
+===START===
+
+#include <stdio.h>
+
+int main (void) {
+	
+	printf("hello");
+		
+	return 0;
+}
+
+====END====
+
+Assembly
+
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	subq	$16, %rsp
+	leaq	L_.str(%rip), %rdi
+	movl	$0, -4(%rbp)
+	movb	$0, %al
+	callq	_printf
+	movl	$0, %ecx
+	movl	%eax, -8(%rbp)          ## 4-byte Spill
+	movl	%ecx, %eax
+	addq	$16, %rsp
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+	.section	__TEXT,__cstring,cstring_literals
+L_.str:                                 ## @.str
+	.asciz	 "hello"
+
+
+.subsections_via_symbols
+
+
+
+
+
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+
+
+
+4) multiple printf c program
+
+test.c
+===START===
+
+#include <stdio.h>
+
+int main (void) {
+	
+	printf("hello \n");
+	printf("assembly \n");
+	printf("meet \n");
+	printf("aakash \n");
+	printf("apoorv \n");
+	return 0;
+}
+
+====END====
+
+Assembly
+
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	subq	$32, %rsp
+	
+	#####################
+	
+	leaq	AAKASH_STRING_1(%rip), %rdi
+	movl	$0, -4(%rbp)
+	movb	$0, %al
+	callq	_printf
+	
+	leaq	AAKASH_STRING_2(%rip), %rdi
+	movl	%eax, -8(%rbp)          ## 4-byte Spill
+	movb	$0, %al
+	callq	_printf
+	
+	leaq	AAKASH_STRING_3(%rip), %rdi
+	movl	%eax, -12(%rbp)         ## 4-byte Spill
+	movb	$0, %al
+	callq	_printf
+	
+	leaq	AAKASH_STRING_4(%rip), %rdi
+	movl	%eax, -16(%rbp)         ## 4-byte Spill
+	movb	$0, %al
+	callq	_printf
+	
+	leaq	AAKASH_STRING_5(%rip), %rdi
+	movl	%eax, -20(%rbp)         ## 4-byte Spill
+	movb	$0, %al
+	callq	_printf
+	
+	####################
+	
+	movl	$0, %ecx
+	movl	%eax, -24(%rbp)         ## 4-byte Spill
+	movl	%ecx, %eax
+	addq	$32, %rsp
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+	.section	__TEXT,__cstring,cstring_literals
+AAKASH_STRING_1:                                 ## @STRING_1
+	.asciz	 "hello \n"
+
+AAKASH_STRING_2:                                ## @STRING_2
+	.asciz	 "assembly \n"
+
+AAKASH_STRING_3:                                ## @STRING_3
+	.asciz	 "meet \n"
+
+AAKASH_STRING_4:                                ## @STRING_4
+	.asciz	 "aakash \n"
+
+AAKASH_STRING_5:                                ## @STRING_5
+	.asciz	 "apoorv \n"
+
+
+.subsections_via_symbols
+
+
+
+
+
+-----------------------------------------------------------------
+
+-----------------------------------------------------------------
+
+
+
+5) simple int c program
+
+test.c
+===START===
+
+#include <stdio.h>
+
+int main (void) {
+	int as = 5;
+	return 0;
+}
+
+====END====
+
+Assembly
+
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	movl	$0, %eax
+	movl	$0, -4(%rbp)
+	movl	$5, -8(%rbp)
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+
+.subsections_via_symbols
+
+
+
+
+
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+
+
+
+6) multiple int c program
+
+test.c
+===START===
+
+#include <stdio.h>
+
+int main (void) {
+	int as = 5;
+	int bs = 6;
+	int cs = 7;
+	int ds = 8;
+	int es = 9;
+	int fs = 10;
+	int gs = 11;
+
+	return 0;
+}
+
+====END====
+
+Assembly
+
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	movl	$0, %eax
+	movl	$0, -4(%rbp)
+	movl	$5, -8(%rbp)
+	movl	$6, -12(%rbp)
+	movl	$7, -16(%rbp)
+	movl	$8, -20(%rbp)
+	movl	$9, -24(%rbp)
+	movl	$10, -28(%rbp)
+	movl	$11, -32(%rbp)
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+
+.subsections_via_symbols
+
+
+
+
+
+-----------------------------------------------------------------
+
+-----------------------------------------------------------------
+
+
+
+7) basic math c program
+
+test.c
+===START===
+
+#include <stdio.h>
+
+int main (void) {
+	int as = 5;
+	int bs = 6;
+	int cs = 7;
+	int ds = 8;
+	int es = 9;
+	int fs = 10;
+	
+	int gs = as + bs;
+	int hs = as - bs;
+	int is = as * bs;
+	int js = as / bs;
+	int ks = as;
+
+	return 0;
+}
+
+====END====
+
+Assembly
+
+		.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	movl	$0, %eax
+	movl	$0, -4(%rbp)
+	movl	$5, -8(%rbp)
+	movl	$6, -12(%rbp)
+	movl	$7, -16(%rbp)
+	movl	$8, -20(%rbp)
+	movl	$9, -24(%rbp)
+	movl	$10, -28(%rbp)
+	
+	movl	-8(%rbp), %ecx
+	movl	-12(%rbp), %edx
+	addl	%edx, %ecx
+	movl	%ecx, -32(%rbp)
+	
+	movl	-8(%rbp), %ecx
+	movl	-12(%rbp), %edx
+	subl	%edx, %ecx
+	movl	%ecx, -36(%rbp)
+	
+	movl	-8(%rbp), %ecx
+	movl	-12(%rbp), %edx
+	imull	%edx, %ecx
+	movl	%ecx, -40(%rbp)
+	
+	movl	-8(%rbp), %ecx
+	movl	-12(%rbp), %edx
+	movl	%eax, -52(%rbp)         ## 4-byte Spill
+	movl	%ecx, %eax
+	movl	%edx, -56(%rbp)         ## 4-byte Spill
+	cltd
+	movl	-56(%rbp), %ecx         ## 4-byte Reload
+	idivl	%ecx
+	movl	%eax, -44(%rbp)
+	
+	movl	-8(%rbp), %eax
+	movl	%eax, -48(%rbp)
+	
+	movl	-52(%rbp), %eax         ## 4-byte Reload
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+
+.subsections_via_symbols
+
+
+
+
+
+-----------------------------------------------------------------
+
+-----------------------------------------------------------------
+
+
+
+8) basic math with print c program
+
+test.c
+===START===
+
+#include <stdio.h>
+
+int main (void) {
+	int as = 5;
+	printf("= %d /n" , as);
+	int bs = 6;
+	printf("= %d /n" , bs);
+	int cs = 7;
+	printf("= %d /n" , cs);
+	int ds = 8;
+	printf("= %d /n" , ds);
+	int es = 9;
+	printf("= %d /n" , es);
+	int fs = 10;
+	printf("= %d /n" , fs);
+	
+	int gs = as + bs;
+	printf("= %d /n" , gs);
+	int hs = as - bs;
+	printf("= %d /n" , hs);
+	int is = as * bs;
+	printf("= %d /n" , is);
+	int js = as / bs;
+	printf("= %d /n" , js);
+	int ks = as;
+	printf("= %d /n" , ks);
+	return 0;
+}
+
+====END====
+
+Assembly
+
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp2:
+	.cfi_def_cfa_offset 16
+Ltmp3:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp4:
+	.cfi_def_cfa_register %rbp
+	subq	$128, %rsp
+	leaq	L_.str(%rip), %rdi
+	movl	$0, -4(%rbp)
+	
+	
+	movl	$5, -8(%rbp)
+	
+	movl	$5, %esi
+	xorb	%al, %al
+	leaq	L_.str(%rip), %rcx
+	movq	%rdi, -56(%rbp)         ## 8-byte Spill
+	movq	%rcx, %rdi
+	movb	%al, -57(%rbp)          ## 1-byte Spill
+	movq	%rcx, -72(%rbp)         ## 8-byte Spill
+	callq	_printf
+	
+	
+	movl	$6, -12(%rbp)
+	
+	movl	$6, %esi
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -76(%rbp)         ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	$7, -16(%rbp)
+	
+	movl	$7, %esi
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -80(%rbp)         ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	$8, -20(%rbp)
+	
+	movl	$8, %esi
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -84(%rbp)         ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	$9, -24(%rbp)
+	
+	movl	$9, %esi
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -88(%rbp)         ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	$10, -28(%rbp)
+	
+	movl	$10, %esi
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -92(%rbp)         ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	-8(%rbp), %esi
+	
+	movl	-12(%rbp), %r8d
+	addl	%r8d, %esi
+	movl	%esi, -32(%rbp)
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -96(%rbp)         ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	-8(%rbp), %esi
+	
+	movl	-12(%rbp), %r8d
+	subl	%r8d, %esi
+	movl	%esi, -36(%rbp)
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -100(%rbp)        ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	-8(%rbp), %esi
+	
+	movl	-12(%rbp), %r8d
+	imull	%r8d, %esi
+	movl	%esi, -40(%rbp)
+	movq	-72(%rbp), %rdi         ## 8-byte Reload
+	movb	-57(%rbp), %dl          ## 1-byte Reload
+	movl	%eax, -104(%rbp)        ## 4-byte Spill
+	movb	%dl, %al
+	callq	_printf
+	
+	
+	movl	-8(%rbp), %esi
+	
+	movl	-12(%rbp), %r8d
+	movl	%eax, -108(%rbp)        ## 4-byte Spill
+	movl	%esi, %eax
+	cltd
+	idivl	%r8d
+	movl	%eax, -44(%rbp)
+	movl	-44(%rbp), %esi
+	movq	-56(%rbp), %rdi         ## 8-byte Reload
+	movb	$0, %al
+	callq	_printf
+	
+	
+	leaq	L_.str(%rip), %rdi
+	
+	movl	-8(%rbp), %edx
+	movl	%edx, -48(%rbp)
+	movl	-48(%rbp), %esi
+	movl	%eax, -112(%rbp)        ## 4-byte Spill
+	movb	$0, %al
+	callq	_printf
+	
+	
+	movl	$0, %edx
+	movl	%eax, -116(%rbp)        ## 4-byte Spill
+	movl	%edx, %eax
+	addq	$128, %rsp
+	popq	%rbp
+	ret
+	.cfi_endproc
+
+	.section	__TEXT,__cstring,cstring_literals
+L_.str:                                 ## @.str
+	.asciz	 "= %d \n"
+
+
+.subsections_via_symbols
+
+
+
+
+
+-----------------------------------------------------------------
+
